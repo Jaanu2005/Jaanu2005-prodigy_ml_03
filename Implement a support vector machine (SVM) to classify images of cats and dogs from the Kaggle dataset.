@@ -1,0 +1,46 @@
+import numpy as np
+import cv2
+import os
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+
+# Step 1: Data Preparation
+def load_images(folder):
+    images = []
+    labels = []
+    for filename in os.listdir(folder):
+        img = cv2.imread(os.path.join(folder, filename))
+        if img is not None:
+            images.append(img)
+            label = 1 if 'dog' in filename else 0
+            labels.append(label)
+    return images, labels
+
+data_folder = 'path_to_folder_containing_images'
+images, labels = load_images(data_folder)
+
+# Step 2: Feature Extraction
+def extract_features(images):
+    features = []
+    for img in images:
+        # Here you can use any feature extraction technique like HOG, SIFT, or simply resizing and flattening
+        # For simplicity, let's resize the images to a fixed size and flatten them
+        resized_img = cv2.resize(img, (100, 100))
+        flattened_img = resized_img.flatten()
+        features.append(flattened_img)
+    return np.array(features)
+
+X = extract_features(images)
+y = np.array(labels)
+
+# Step 3: Training SVM
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+svm = SVC(kernel='linear')
+svm.fit(X_train, y_train)
+
+# Step 4: Testing
+y_pred = svm.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy:", accuracy
